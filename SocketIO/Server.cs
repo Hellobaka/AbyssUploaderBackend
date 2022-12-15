@@ -83,12 +83,13 @@ namespace StreamDanmaku_Server.SocketIO
         private static void HandleMessage(MsgHandler socket, string jsonText)
         {
             APIResult request = JsonConvert.DeserializeObject<APIResult>(jsonText);
+            if (request.Type != "Auth" && socket.Authed == false) return;
             try
             {
                 switch (request.Type)
                 {
                     case "Auth":
-                        if (long.TryParse(request.Data.ToString(), out long qq))
+                        if (long.TryParse(request.Data.ToString(), out long qq) && Helper.BotIDList.Contains(qq))
                         {
                             socket.CurrentUser = new User { Id = qq, WebSocket = socket };
                             socket.Authed = true;

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using StreamDanmaku_Server.Data;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace StreamDanmaku_Server
@@ -10,6 +11,15 @@ namespace StreamDanmaku_Server
     /// </summary>
     public static class Helper
     {
+        public static List<long> BotIDList { get; set; } = new();
+        public static void ReloadBotList()
+        {
+            BotIDList.Clear();
+            foreach (var item in Config.GetConfig("BotList", "").Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                BotIDList.Add(Convert.ToInt64(item));
+            }
+        }
         /// <summary>
         /// 连接保存对象
         /// </summary>
@@ -45,6 +55,13 @@ namespace StreamDanmaku_Server
         {
             Directory.CreateDirectory("Image");
             File.WriteAllBytes(Path.Combine("Image", $"{token}.png"), Convert.FromBase64String(base64));
+        }
+
+        public static string Join<T>(this List<T> ls, string pattern)
+        {
+            string a = "";
+            foreach (T t in ls) a += t.ToString() + pattern;
+            return a == "" ? "" : a[..^pattern.Length];
         }
     }
 }
