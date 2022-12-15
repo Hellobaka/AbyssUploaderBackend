@@ -49,6 +49,8 @@ namespace StreamDanmaku_Server.Data
                 }
                 end = start.AddDays(2);
             }
+            start = new DateTime(start.Year, start.Month, start.Day, 23, 59, 59);
+            end = new DateTime(time.Year, time.Month, time.Day, 23, 59, 59);
             using var sql = SQLHelper.GetInstance();
             return sql.Queryable<UploadInfo>().Where(x => x.UploadTime >= start && x.UploadTime <= end && x.Type == 1).ToList();
         }
@@ -61,6 +63,8 @@ namespace StreamDanmaku_Server.Data
                 start = start.AddDays(-1);
             }
             end = start.AddDays(7);
+            start = new DateTime(start.Year, start.Month, start.Day, 23, 59, 59);
+            end = new DateTime(time.Year, time.Month, time.Day, 23, 59, 59);
             using var sql = SQLHelper.GetInstance();
             return sql.Queryable<UploadInfo>().Where(x => x.UploadTime >= start && x.UploadTime <= end && x.Type == 2).ToList();
         }
