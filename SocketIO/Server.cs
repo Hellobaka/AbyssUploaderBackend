@@ -205,7 +205,7 @@ namespace StreamDanmaku_Server.SocketIO
             };
             upload.Save();
             socket.Emit(new APIResult { Token = request.Token, Type = "UploadMemoryField" });
-            RuntimeLog.WriteSystemLog("MemoryFieldUpload", $"QQ={socket.CurrentUser.Id} 记忆战场上传成功 Token={request.Token}", true);
+            RuntimeLog.WriteSystemLog("MemoryFieldUpload", $"QQ={socket.CurrentUser.Id} 记忆战场上传成功 Token={request.Token} Remark={info.Remark}", true);
 
             DateTime baseTuesday = LastMemoryFiledBoardcastTime;
             while(baseTuesday.DayOfWeek != DayOfWeek.Tuesday)
@@ -247,7 +247,7 @@ namespace StreamDanmaku_Server.SocketIO
             };
             upload.Save();
             socket.Emit(new APIResult { Token = request.Token, Type = "UploadAbyssInfo" });
-            RuntimeLog.WriteSystemLog("AbyssUpload", $"QQ={socket.CurrentUser.Id} 深渊上传成功 Token={request.Token}", true);
+            RuntimeLog.WriteSystemLog("AbyssUpload", $"QQ={socket.CurrentUser.Id} 深渊上传成功 Token={request.Token} Remark={info.Remark}", true);
 
             if ((DateTime.Now - LastAbyssBoardcastTime).Days >= 3)
             {
