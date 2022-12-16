@@ -94,9 +94,13 @@ namespace StreamDanmaku_Server.SocketIO
                             socket.CurrentUser = new User { Id = qq, WebSocket = socket };
                             socket.Authed = true;
                             Online.Users.Add(socket.CurrentUser);
+                            RuntimeLog.WriteSystemLog("Auth", $"QQ={qq} 连接成功", true);
                         }
                         else
+                        {
                             socket.Authed = false;
+                            RuntimeLog.WriteSystemLog("Auth", $"{request.Data} 连接失败", false);
+                        }
                         break;
                     case "Heartbeat":
                         socket.Emit("Heartbeat", "");
@@ -126,6 +130,7 @@ namespace StreamDanmaku_Server.SocketIO
 
         private static void HandleMemoryFieldQuery(APIResult request, MsgHandler socket)
         {
+            RuntimeLog.WriteSystemLog("MemoryFieldQuery", $"QQ={socket.CurrentUser.Id} 调用记忆战场查询", true);
             var ls = UploadInfo.QueryMemoryField(DateTime.Now);
             var info = ls.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
             if (info == null)
@@ -151,6 +156,7 @@ namespace StreamDanmaku_Server.SocketIO
 
         private static void HandleAbyssQuery(APIResult request, MsgHandler socket)
         {
+            RuntimeLog.WriteSystemLog("AbyssQuery", $"QQ={socket.CurrentUser.Id} 调用深渊查询", true);
             var ls = UploadInfo.QueryAbyss(DateTime.Now);
             var info = ls.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
             if (info == null)
@@ -176,6 +182,7 @@ namespace StreamDanmaku_Server.SocketIO
 
         private static void HandleMemoryFieldUpload(APIResult request, MsgHandler socket)
         {
+            RuntimeLog.WriteSystemLog("MemoryFieldUpload", $"QQ={socket.CurrentUser.Id} 调用记忆战场上传", true);
             APIResult.Info info = null;
             try
             {
@@ -198,10 +205,18 @@ namespace StreamDanmaku_Server.SocketIO
             };
             upload.Save();
             socket.Emit(new APIResult { Token = request.Token, Type = "UploadMemoryField" });
+            RuntimeLog.WriteSystemLog("MemoryFieldUpload", $"QQ={socket.CurrentUser.Id} 记忆战场上传成功 Token={request.Token}", true);
 
-            if ((DateTime.Now - LastMemoryFiledBoardcastTime).Days >= 7)
+            DateTime baseTuesday = LastMemoryFiledBoardcastTime;
+            while(baseTuesday.DayOfWeek != DayOfWeek.Tuesday)
+            {
+                baseTuesday = baseTuesday.AddDays(-1);
+            }
+            if ((DateTime.Now - baseTuesday).Days >= 7)
             {
                 request.Type = "BoardcastMemoryField";
+                info.ID = upload.ID;
+                request.Data = info.ToJson();
                 BoardCast(request);
                 LastMemoryFiledBoardcastTime = DateTime.Now;
             }
@@ -209,6 +224,7 @@ namespace StreamDanmaku_Server.SocketIO
 
         private static void HandleAbyssUpload(APIResult request, MsgHandler socket)
         {
+            RuntimeLog.WriteSystemLog("AbyssUpload", $"QQ={socket.CurrentUser.Id} 调用深渊上传", true);
             APIResult.Info info = null;
             try
             {
@@ -231,10 +247,13 @@ namespace StreamDanmaku_Server.SocketIO
             };
             upload.Save();
             socket.Emit(new APIResult { Token = request.Token, Type = "UploadAbyssInfo" });
+            RuntimeLog.WriteSystemLog("AbyssUpload", $"QQ={socket.CurrentUser.Id} 深渊上传成功 Token={request.Token}", true);
 
             if ((DateTime.Now - LastAbyssBoardcastTime).Days >= 3)
             {
                 request.Type = "BoardcastAbyss";
+                info.ID = upload.ID;
+                request.Data = info.ToJson();
                 BoardCast(request);
                 LastAbyssBoardcastTime = DateTime.Now;
             }
