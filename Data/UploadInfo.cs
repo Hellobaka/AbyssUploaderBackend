@@ -18,7 +18,7 @@ namespace StreamDanmaku_Server.Data
         public void Save()
         {
             using var sql = SQLHelper.GetInstance();
-            sql.Insertable(this).ExecuteCommand();
+            ID =  sql.Insertable(this).ExecuteReturnIdentity();
         }
 
         public static List<UploadInfo> QueryAbyss(DateTime time)
@@ -49,7 +49,7 @@ namespace StreamDanmaku_Server.Data
                 }
                 end = start.AddDays(2);
             }
-            start = new DateTime(start.Year, start.Month, start.Day, 23, 59, 59);
+            start = new DateTime(start.Year, start.Month, start.Day, 0, 0, 0);
             end = new DateTime(time.Year, time.Month, time.Day, 23, 59, 59);
             using var sql = SQLHelper.GetInstance();
             return sql.Queryable<UploadInfo>().Where(x => x.UploadTime >= start && x.UploadTime <= end && x.Type == 1).ToList();
@@ -58,12 +58,12 @@ namespace StreamDanmaku_Server.Data
         {
             DayOfWeek dd = time.DayOfWeek;
             DateTime start = time, end = time;
-            while (start.DayOfWeek != DayOfWeek.Monday)
+            while (start.DayOfWeek != DayOfWeek.Tuesday)
             {
                 start = start.AddDays(-1);
             }
             end = start.AddDays(7);
-            start = new DateTime(start.Year, start.Month, start.Day, 23, 59, 59);
+            start = new DateTime(start.Year, start.Month, start.Day, 0, 0, 0);
             end = new DateTime(time.Year, time.Month, time.Day, 23, 59, 59);
             using var sql = SQLHelper.GetInstance();
             return sql.Queryable<UploadInfo>().Where(x => x.UploadTime >= start && x.UploadTime <= end && x.Type == 2).ToList();
