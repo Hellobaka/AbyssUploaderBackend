@@ -11,10 +11,12 @@ namespace StreamDanmaku_Server
         public object Data { get; set; }
         public class Info
         {
+            public int ID { get; set; }
             public string UploaderName { get; set; }
             public DateTime UploadTime { get; set; }
             public string PicBase64 { get; set; }
             public long Uploader { get; set; }
+            public string Remark { get; set; }
         }
     }
 
