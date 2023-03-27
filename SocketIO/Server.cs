@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using StreamDanmaku_Server.Data;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -249,13 +250,55 @@ namespace StreamDanmaku_Server.SocketIO
             socket.Emit(new APIResult { Token = request.Token, Type = "UploadAbyssInfo" });
             RuntimeLog.WriteSystemLog("AbyssUpload", $"QQ={socket.CurrentUser.Id} 深渊上传成功 Token={request.Token} Remark={info.Remark}", true);
 
-            if ((DateTime.Now - LastAbyssBoardcastTime).Days >= 3)
+            bool boardCastFlag = false;
+            int weekDay = GetDayofWeek(DateTime.Now);
+            if (weekDay >= 1 && weekDay <= 3)
+            {
+                boardCastFlag = !IsSameWeek(LastAbyssBoardcastTime, DateTime.Now);
+            }
+            else if (weekDay >= 5 && weekDay <= 7)
+            {
+                boardCastFlag = GetDayofWeek(LastAbyssBoardcastTime) < 4;
+            }
+
+            if (boardCastFlag)
             {
                 request.Type = "BoardcastAbyss";
                 info.ID = upload.ID;
                 request.Data = info.ToJson();
                 BoardCast(request);
                 LastAbyssBoardcastTime = DateTime.Now;
+            }
+        }
+
+        public static int GetDayofWeek(DateTime dt)
+        {
+            int weekDay = (int)dt.DayOfWeek;
+            if (weekDay == 0)
+            {
+                weekDay = 7;
+            }
+            return weekDay;
+        }
+
+        public static bool IsSameWeek(DateTime date1, DateTime date2)
+        {
+            // 获取当前区域性的日历
+            CultureInfo ci = CultureInfo.CurrentCulture;
+            Calendar calendar = ci.Calendar;
+
+            // 获取日期所在的周数
+            int week1 = calendar.GetWeekOfYear(date1, ci.DateTimeFormat.CalendarWeekRule, ci.DateTimeFormat.FirstDayOfWeek);
+            int week2 = calendar.GetWeekOfYear(date2, ci.DateTimeFormat.CalendarWeekRule, ci.DateTimeFormat.FirstDayOfWeek);
+
+            // 判断是否处于同一周
+            if (week1 == week2)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
